@@ -1,3 +1,6 @@
+import random
+from datetime import datetime
+
 """Classes for melon orders."""
 
 class AbstractMelonOrder(object):
@@ -12,20 +15,40 @@ class AbstractMelonOrder(object):
         self.order_type = None
         self.tax = None
 
+        if qty > 100:
+            raise TooManyMelonserror()
+
+    def get_base_price(self):
+        """Calculate a random base price for melon"""
+        base_price = random.randint(5, 9)
+
+        if self.species == 'Christmas melon':
+            base_price *= 1.5
+
+        current_time = datetime.now()
+
+        if current_time.weekday() in range(5):
+            if current_time.hour in range(8,13):
+                base_price += 4
+
+        return base_price
+
     def get_total(self):
         """Calculate price, including tax."""
-        if self.species == 'Christmas melon':
-            base_price = 7.5
-        else:
-            base_price = 5
 
-        total = (1 + self.tax) * self.qty * base_price
-        return total
+        return (1 + self.tax) * self.qty * self.get_base_price()
 
     def mark_shipped(self):
         """Record the fact than an order has been shipped."""
 
         self.shipped = True
+
+class  TooManyMelonserror(ValueError):
+    """Returns error if more than 100 melons are ordered."""
+
+    def __init__(self):
+    """Docstring!"""
+        super(TooManyMelonserror, self).__init__("Too many melons!")
 
 
 class DomesticMelonOrder(AbstractMelonOrder):
@@ -37,6 +60,10 @@ class DomesticMelonOrder(AbstractMelonOrder):
 
         self.order_type = 'domestic'
         self.tax = 0.08
+
+    def get_base_price(self):
+        """Calculate a random base price for melon"""
+        return super(DomesticMelonOrder, self).get_base_price()
 
     def get_total(self):
         """Calculate price, including tax."""
@@ -58,6 +85,10 @@ class InternationalMelonOrder(AbstractMelonOrder):
         self.country_code = country_code
         self.order_type = 'international'
         self.tax = 0.17
+
+    def get_base_price(self):
+        """Calculate a random base price for melon"""
+        return super(InternationalMelonOrder, self).get_base_price()
 
     def get_total(self):
         """Calculate price, including tax."""
@@ -88,6 +119,10 @@ class GovernmentMelonOrder(AbstractMelonOrder):
 
         self.tax = 0
         self.passed_inspection = False
+
+    def get_base_price(self):
+        """Calculate a random base price for melon"""
+        return super(GovernmentMelonOrder, self).get_base_price()
 
     def get_total(self):
         """Calculate price, including tax."""
